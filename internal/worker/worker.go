@@ -64,10 +64,7 @@ func (r Runner) process(ctx context.Context, max, batch int) error {
 		return err
 	}
 	for _, job := range jobs {
-		handlerCtx := context.WithoutCancel(ctx)
-		handlerErr := r.Handler.Handle(handlerCtx, job)
-		if handlerErr != nil {
-			err := handlerErr
+		if err := r.Handler.Handle(ctx, job); err != nil {
 			if job.Attempts+1 >= max {
 				if permanentErr := r.Store.MarkJobPermanent(ctx, job.ID, err.Error()); permanentErr != nil {
 					return permanentErr
